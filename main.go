@@ -3,25 +3,45 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"path"
+	"strings"
 	"text/template"
+	"time"
 )
 
 var (
-	folder = flag.String("dir", "./", "Set the folder to serve files from")
-	host   = flag.String("host", "0.0.0.0", "Set the hostname")
-	port   = flag.Int("port", 8080, "Set the port")
+	host   = flag.String("host", "localhost", "Host to serve on")
+	port   = flag.Int("port", 8080, "Port to serve on")
+	folder = flag.String("folder", ".", "Folder to serve")
 )
 
 func main() {
 	flag.Parse()
 
-	http.HandleFunc("/", handleRequest)
+	http.HandleFunc("/", logRequest(handleRequest))
 	addr := fmt.Sprintf("%s:%d", *host, *port)
 	fmt.Printf("Serving files from %s on %s\n", *folder, addr)
-	http.ListenAndServe(addr, nil)
+	log.Fatal(http.ListenAndServe(addr, nil))
+}
+
+func logRequest(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		ip := strings.Split(r.RemoteAddr, ":")[0]
+		method := r.Method
+		url := r.URL.Path
+		userAgent := r.UserAgent()
+
+		log.Printf("[%s] %s %s from %s (User-Agent: %s)\n", time.Now().Format(time.RFC3339), method, url, ip, userAgent)
+
+		next.ServeHTTP(w, r)
+
+		elapsed := time.Since(start)
+		log.Printf("[%s] %s %s from %s completed in %s\n", time.Now().Format(time.RFC3339), method, url, ip, elapsed)
+	}
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
