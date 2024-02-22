@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	host   = flag.String("host", "localhost", "Host to serve on")
+	host   = flag.String("host", "0.0.0.0", "Host to serve on")
 	port   = flag.Int("port", 8080, "Port to serve on")
-	folder = flag.String("folder", ".", "Folder to serve")
+	folder = flag.String("dir", ".", "Folder to serve")
 )
 
 func main() {
