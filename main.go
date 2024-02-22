@@ -1,22 +1,33 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"html/template"
 	"net/http"
 	"os"
 	"path"
+	"text/template"
+)
+
+var (
+	folder = flag.String("dir", "./", "Set the folder to serve files from")
+	host   = flag.String("host", "0.0.0.0", "Set the hostname")
+	port   = flag.Int("port", 8080, "Set the port")
 )
 
 func main() {
+	flag.Parse()
+
 	http.HandleFunc("/", handleRequest)
-	http.ListenAndServe(":8080", nil)
+	addr := fmt.Sprintf("%s:%d", *host, *port)
+	fmt.Printf("Serving files from %s on %s\n", *folder, addr)
+	http.ListenAndServe(addr, nil)
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-	filePath := r.URL.Path[1:]
+	filePath := path.Join(*folder, r.URL.Path[1:])
 	if filePath == "" {
-		renderDirectory(w, ".")
+		renderDirectory(w, *folder)
 		return
 	}
 
