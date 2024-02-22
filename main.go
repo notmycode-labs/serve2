@@ -45,13 +45,7 @@ func logRequest(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-	requestedPath := path.Clean(r.URL.Path)
-	filePath := path.Join(*folder, requestedPath[1:])
-
-	if !strings.HasPrefix(filePath, *folder) {
-		http.Error(w, "Are you stupid ", http.StatusForbidden)
-		return
-	}
+	filePath := path.Join(*folder, r.URL.Path[1:])
 
 	info, err := os.Stat(filePath)
 	if err == nil && info.IsDir() {
