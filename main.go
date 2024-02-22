@@ -118,6 +118,8 @@ func renderDirectory(w http.ResponseWriter, dirPath string) {
     <html>
     <head>
         <title>Index of {{.Name}}</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
 		
 		<style>
 		body {
