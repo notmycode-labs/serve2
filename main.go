@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 	"text/template"
 	"time"
@@ -46,6 +47,12 @@ func logRequest(next http.HandlerFunc) http.HandlerFunc {
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 	filePath := path.Join(*folder, r.URL.Path[1:])
+	// Check if the requested path is within the specified folder
+	relPath, err := filepath.Rel(*folder, filePath)
+	if err != nil || strings.HasPrefix(relPath, "..") {
+		http.NotFound(w, r)
+		return
+	}
 
 	info, err := os.Stat(filePath)
 	if err == nil && info.IsDir() {

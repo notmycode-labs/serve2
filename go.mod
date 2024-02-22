@@ -1,3 +1,3 @@
-module serve211-dev
+module serve-dev
 
 go 1.21.5
